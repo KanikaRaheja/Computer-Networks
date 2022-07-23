@@ -1,0 +1,228 @@
+#include<iostream>
+#include<conio.h>
+#include<math.h>
+using namespace std;
+//Hamming Class
+class hamming
+{
+	int *data,sd,*code,*rd,*chk,p,r,d,d1;
+	int x,k,min,max,j;
+	public:
+		void input();
+		void display();
+		void parity();
+		void errorcorrect();
+};
+//Taking the data bits from the user
+void hamming::input()
+{
+	cout<<"\n Enter the number of bits of data:- ";
+	cin>>sd;
+	data=new int[sd];
+	cout<<"\n Enter the data bits:- ";
+	for(int i=1;i<=sd;i++)
+	cin>>data[i];
+	parity();
+}
+//calculation of redundancy bits
+void hamming::parity()
+{
+	r=0;
+	d=0;
+    j=1;
+	while(pow(2,r)<sd+r+1)
+	{
+		r++;
+	}
+//putting -1 in place of parity bits
+	code=new int[r+sd];
+	for(int i=1;i<=sd+r;i++)
+	{
+		if(i==pow(2,d))
+		{
+		code[i]=-1;
+		d++;
+	    }
+		else
+		{
+		code[i]=data[j];
+		j++;
+    	}
+	}
+	 k=0;
+	//calculation of parity bits
+	for(int i=1;i<=sd+r;i=pow(2,k))
+	{
+	  k++;
+	  p=0;
+      x=i;
+      min=1;
+      j=i;
+      max=i;
+         while(j<=sd+r)
+         {
+         	for(x=j;max>=min && x<=sd+r;min++,x++)
+         	{
+         		if(code[x]==1)
+         		{
+         		 p++;
+            	}
+			 }
+			 j=x+i;
+			 min=1;
+		 }
+		 if(p%2==0)
+		 {
+		 code[i]=0;
+	     }
+		 else
+		 code[i]=1;
+    }
+}
+//correction of error in the received message and displayong the correct message
+void hamming::errorcorrect()
+{
+	int errorbit=0;
+	rd=new int[sd+r];
+	chk=new int[sd+r];
+	cout<<"\n\n Enter the received message:- ";
+	for(int i=1;i<=sd+r;i++)
+	cin>>rd[i];
+	for(int i=1;i<=sd+r;i++)
+	chk[i]=rd[i];
+	cout<<endl;
+	cout<<"!! RECEIVER SIDE!! "<<endl;
+	cout<<"\n Received message is:-";
+	for(int i=1;i<=sd+r;i++)
+	cout<<" "<<chk[i];
+	k=0;
+	for(int i=1;i<=sd+r;i=pow(2,k))
+    {
+    	p=0;
+    	k++;
+    	min=1;
+    	max=i;
+    	j=i;
+    	x=i;
+    	while(j<=sd+r)
+    	{
+    		for(x=j;max>=min && x<=sd+r;x++,min++)
+    		{
+    			if(chk[x]==1)
+    			 p++;
+			}
+			min=1;
+			j=x+i;
+		}
+		if(p%2==0)
+		chk[i]=0;
+		else
+		chk[i]=1;
+    }	
+    k=0;
+    for(int i=1;i<=sd+r;i=pow(2,k))
+    {
+    	k++;
+    	cout<<"\n Parity bit at "<<i<<" after finding error become:- "<<chk[i];
+	}
+	k=0;
+	 for(int i=1;i<=sd+r;i=pow(2,k))
+	 {
+	 	k++;
+	   if(chk[i]==1)
+	 	errorbit+=i;
+	 }
+	 if(errorbit>0)
+	 {
+	 cout<<"\n The error bit is:- "<<errorbit;
+	 cout<<"\n After correcting the errorbit the message has become:-";
+	 for(int i=1;i<=sd+r;i++)
+	 {
+	 	if(i==errorbit)
+	 	{
+	 	if(rd[i]==0)
+	 	rd[i]=1;
+	 	else
+	 	rd[i]=0;
+	    }
+	    cout<<" "<<rd[i];
+	 }
+}
+	if(errorbit==0)
+	{
+	 cout<<"\n\nNo Error in the received message ";
+	 cout<<"\nMessage is:-";
+	 for(int i=1;i<=sd+r;i++)
+	 cout<<" "<<rd[i];
+}
+	
+}
+//dispalaying sender side
+void hamming::display()
+{
+	cout<<"\n !!SENDER SIDE!!";
+	cout<<"\n Data bits are:-";
+	for(int i=1;i<=sd;i++)
+	cout<<" "<<data[i];
+	cout<<"\n Number of parity bits to be added:-";
+	cout<<r;
+	cout<<"\n The hamming code generated  to send to the receiver is:-";
+	for(int i=1;i<=sd+r;i++)
+	cout<<" "<<code[i];
+}
+int main()
+{
+	hamming h;
+	h.input();
+	h.display();
+	h.errorcorrect();
+	getch();
+	return 0;
+}
+/*
+ Enter the number of bits of data:- 7
+
+ Enter the data bits:- 1 0 0 1 1 0 1
+
+ !!SENDER SIDE!!
+ Data bits are:- 1 0 0 1 1 0 1
+ Number of parity bits to be added:-4
+ The hamming code generated  to send to the receiver is:- 0 1 1 1 0 0 1 0 1 0 1
+
+ Enter the received message:- 0 1 1 1 0 0 1 0 1 0 1
+
+!! RECEIVER SIDE!!
+
+ Received message is:- 0 1 1 1 0 0 1 0 1 0 1
+ Parity bit at 1 after finding error become:- 0
+ Parity bit at 2 after finding error become:- 0
+ Parity bit at 4 after finding error become:- 0
+ Parity bit at 8 after finding error become:- 0
+
+No Error in the received message
+Message is:- 0 1 1 1 0 0 1 0 1 0 1
+
+
+2nd Output
+ Enter the number of bits of data:- 7
+
+ Enter the data bits:- 1 0 0 1 1 0 1
+
+ !!SENDER SIDE!!
+ Data bits are:- 1 0 0 1 1 0 1
+ Number of parity bits to be added:-4
+ The hamming code generated  to send to the receiver is:- 0 1 1 1 0 0 1 0 1 0 1
+
+ Enter the received message:- 0 1 0 1 0 0 1 0 1 0 1
+
+!! RECEIVER SIDE!!
+
+ Received message is:- 0 1 0 1 0 0 1 0 1 0 1
+ Parity bit at 1 after finding error become:- 1
+ Parity bit at 2 after finding error become:- 1
+ Parity bit at 4 after finding error become:- 0
+ Parity bit at 8 after finding error become:- 0
+ The error bit is:- 3
+ After correcting the errorbit the message has become:- 0 1 1 1 0 0 1 0 1 0 1
+
+*/

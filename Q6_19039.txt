@@ -1,0 +1,165 @@
+//Program to implement the Dijkstra's shortest path algorithm
+
+#include<iostream>
+#include<conio.h>
+#include<stdio.h>
+using namespace std;
+
+class Dijkstra
+{
+	int *node;
+	int **dist;
+	int V;
+	int max = INT_MAX;
+	public:
+		Dijkstra();
+		void input();
+		int minDist(int dist[], bool visited[] );
+		void algo(int src);
+		void print(int dist[]);	
+};
+
+Dijkstra:: Dijkstra()
+{
+    cout<<"\n---------------------------------------------------------------------------\n";
+	cout<<"\nEnter the number of nodes : ";
+    cin>>V;
+	node = new int[V];
+	dist = new int*[V];
+	for(int i = 0; i < V; i++)
+	{
+	    dist[i] = new int[V];
+		node[i] = i+1;
+	}
+}
+
+void Dijkstra:: input()
+{
+	cout<<"Enter the distance : \n";
+	for(int i = 0; i < V; i++)
+	{
+		for(int j = 0; j < V; j++)
+		{
+			int d;
+			if(i >= j )
+			{
+			    if(i == j)
+			       dist[i][j] = 0;
+			}
+			else
+			{
+				cout<<"Router "<<node[i]<<" --> Router "<<node[j]<<" : ";
+				cin>>d;
+				dist[i][j] = d;
+				dist[j][i] = d;
+			}
+		}
+	}
+}
+
+//function to find the vertex with minimum distance value,from
+//the set of vertices not yet included in the shortest path tree
+int Dijkstra:: minDist(int dist[],bool VSet[])
+{
+	int min = max;
+	int index;
+	for(int v = 0; v < V; v++)
+		if(VSet[v] == false && dist[v] <= min)
+		{
+			min = dist[v];
+			index = v;
+		}
+	return index;
+}
+
+//Function to print minimum distance from the source
+void Dijkstra:: print(int dist[])
+{
+	cout<<"________________________________\n";
+	cout<<"| Source  |   Minimum Distance  |\n";
+	cout<<"|_________|_____________________|\n";
+	for(int i = 0; i < V; i++)
+    	cout<<"|    "<<i+1<<"    |\t    "<<dist[i]<<"   \t|"<<endl;
+	cout<<"|_________|_____________________|\n";
+}
+
+void Dijkstra:: algo(int src)
+{
+	int *cost = new int[V];
+	bool *VSet = new bool[V];
+	
+	for(int i = 0; i < V; i++ )
+        cost[i] = INT_MAX, VSet[i] = false;
+	     
+    cost[src] = 0;
+    
+    for( int count = 0; count < V-1; count++)
+    {
+    	int u = minDist(cost, VSet);
+    	VSet[u] = true;
+    	
+    	for( int v = 0; v < V; v++)
+    	{
+    		if(!VSet[v] && dist[u][v] && cost[u] != INT_MAX && cost[u] + dist[u][v] < cost[v])
+    		     cost[v] = cost[u] + dist[u][v];
+		}
+	}
+	print(cost);
+}
+
+// 5 2 3 0 4 0 3 0 4 0
+int main()
+{
+	int src;
+	cout<<"!! PROGRAM TO IMPLEMENT DIJKSTRA'S ALGORITHM !!\n";
+    Dijkstra ob;
+    ob.input();
+	cout<<"\n\t--- OUTPUT---\n";
+	cout<<"\nEnter the source router (within no. of routers) : ";
+	cin>>src;
+    ob.algo(src-1);
+	cout<<"\n---------------------------------------------------------------------------\n";
+	cout<<"\n[PROGRAM FINISHED]\n";
+	getch();
+	return 0;
+}
+
+/*
+OUTPUT
+Example as given in book :
+
+!! PROGRAM TO IMPLEMENT DIJKSTRA'S ALGORITHM !!
+
+---------------------------------------------------------------------------
+
+Enter the number of nodes : 5
+Enter the distance :
+Router 1 --> Router 2 : 5
+Router 1 --> Router 3 : 2
+Router 1 --> Router 4 : 3
+Router 1 --> Router 5 : 0
+Router 2 --> Router 3 : 4
+Router 2 --> Router 4 : 0
+Router 2 --> Router 5 : 3
+Router 3 --> Router 4 : 0
+Router 3 --> Router 5 : 4
+Router 4 --> Router 5 : 0
+
+        --- OUTPUT---
+
+Enter the source router (within no. of routers) : 1
+________________________________
+| Source  |   Minimum Distance  |
+|_________|_____________________|
+|    1    |         0           |
+|    2    |         5           |
+|    3    |         2           |
+|    4    |         3           |
+|    5    |         6           |
+|_________|_____________________|
+
+---------------------------------------------------------------------------
+
+[PROGRAM FINISHED]
+
+*/
